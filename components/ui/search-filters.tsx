@@ -1,113 +1,116 @@
 'use client';
 
 import { useState } from 'react';
-import { Star, ChevronDown } from 'lucide-react';
+import { Filter } from 'lucide-react';
 
-const SearchFilters = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    city: '',
-    minRating: 0,
+interface SearchFiltersProps {
+  onFilterChange?: (filters: FilterState) => void;
+}
+
+interface FilterState {
+  rating: number | null;
+  priceRange: string | null;
+  verifiedOnly: boolean;
+  experience: string | null;
+}
+
+export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
+  const [isOpen, setIsOpen] = useState(true);
+  const [filters, setFilters] = useState<FilterState>({
+    rating: null,
+    priceRange: null,
     verifiedOnly: false,
-    priceRange: 'all'
+    experience: null,
   });
 
-  const cities = ['Milano', 'Roma', 'Torino', 'Napoli', 'Firenze'];
-
-  const updateFilter = (key: string, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+  const handleFilterChange = (newFilters: Partial<FilterState>) => {
+    const updatedFilters = { ...filters, ...newFilters };
+    setFilters(updatedFilters);
+    onFilterChange?.(updatedFilters);
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-6 bg-white rounded-lg border p-4">
-      {/* Pulsante Toggle Filtri */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-gray-700 font-medium"
-      >
-        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        Filtri di Ricerca
-      </button>
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Filtri</h2>
+        <button onClick={() => setIsOpen(!isOpen)}>
+          <Filter className="w-5 h-5 text-gray-500" />
+        </button>
+      </div>
 
-      {/* Pannello Filtri */}
       {isOpen && (
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Città */}
+        <div className="space-y-6">
+          {/* Rating */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Città
-            </label>
-            <select
-              value={filters.city}
-              onChange={(e) => updateFilter('city', e.target.value)}
-              className="w-full p-2 border rounded-lg"
-            >
-              <option value="">Tutte le città</option>
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Rating Minimo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Rating Minimo
-            </label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <button
-                  key={rating}
-                  onClick={() => updateFilter('minRating', rating)}
-                  className={`p-2 rounded ${
-                    filters.minRating >= rating
-                      ? 'bg-yellow-400 text-white'
-                      : 'bg-gray-100'
-                  }`}
-                >
-                  <Star className="w-4 h-4" />
-                </button>
+            <h3 className="text-sm font-medium mb-2">Rating minimo</h3>
+            <div className="space-y-2">
+              {[4, 3, 2, 1].map((rating) => (
+                <label key={rating} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="rating"
+                    className="mr-2"
+                    checked={filters.rating === rating}
+                    onChange={() => handleFilterChange({ rating })}
+                  />
+                  <span>{rating}+ stelle</span>
+                </label>
               ))}
             </div>
           </div>
 
-          {/* Solo Verificati */}
+          {/* Prezzo */}
           <div>
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <h3 className="text-sm font-medium mb-2">Fascia di prezzo</h3>
+            <div className="space-y-2">
+              {['€', '€€', '€€€', '€€€€'].map((price) => (
+                <label key={price} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="price"
+                    className="mr-2"
+                    checked={filters.priceRange === price}
+                    onChange={() => handleFilterChange({ priceRange: price })}
+                  />
+                  <span>{price}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Verificati */}
+          <div>
+            <label className="flex items-center">
               <input
                 type="checkbox"
+                className="mr-2"
                 checked={filters.verifiedOnly}
-                onChange={(e) => updateFilter('verifiedOnly', e.target.checked)}
-                className="rounded border-gray-300"
+                onChange={(e) => handleFilterChange({ verifiedOnly: e.target.checked })}
               />
-              <span className="text-sm font-medium text-gray-700">
-                Solo professionisti verificati
-              </span>
+              <span className="text-sm">Solo professionisti verificati</span>
             </label>
           </div>
 
-          {/* Fascia di Prezzo */}
+          {/* Esperienza */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fascia di Prezzo
-            </label>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => updateFilter('priceRange', e.target.value)}
-              className="w-full p-2 border rounded-lg"
-            >
-              <option value="all">Tutte le fasce</option>
-              <option value="low">Economica</option>
-              <option value="medium">Media</option>
-              <option value="high">Premium</option>
-            </select>
+            <h3 className="text-sm font-medium mb-2">Anni di esperienza</h3>
+            <div className="space-y-2">
+              {['0-5', '5-10', '10-20', '20+'].map((exp) => (
+                <label key={exp} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="experience"
+                    className="mr-2"
+                    checked={filters.experience === exp}
+                    onChange={() => handleFilterChange({ experience: exp })}
+                  />
+                  <span className="text-sm">{exp} anni</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default SearchFilters;
+}

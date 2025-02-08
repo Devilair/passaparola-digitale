@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  role          Role      @default(USER)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Professional {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  profession      String
+  specializations String[]
+  experience      Int       // anni di esperienza
+  city            String
+  address         String?
+  description     String?
+  verified        Boolean   @default(false)
+  rating          Float     @default(0)
+  reviewsCount    Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Review {
+  id              String    @id @default(cuid())
+  professionalId  String
+  userId          String
+  rating          Int
+  title           String
+  content         String
+  response        String?
+  verified        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  PROFESSIONAL
+  ADMIN
+}

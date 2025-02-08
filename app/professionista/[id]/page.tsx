@@ -1,47 +1,81 @@
 'use client';
+
 import { Star, Shield, MapPin, Calendar, ThumbsUp, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useParams } from 'next/navigation';
 
-// Dati di esempio
-const professional = {
-  id: 1,
-  name: "Avv. Marco Rossi",
-  profession: "Avvocato",
-  specializations: ["Diritto Civile", "Diritto del Lavoro"],
-  rating: 4.8,
-  reviews: 156,
-  city: "Milano",
-  verified: true,
-  image: "/api/placeholder/200/200",
-  description: "Avvocato civilista con oltre 15 anni di esperienza. Specializzato in diritto del lavoro e controversie contrattuali.",
-  experience: "15 anni",
-  education: ["Laurea in Giurisprudenza - Università di Milano", "Master in Diritto del Lavoro"],
-  languages: ["Italiano", "Inglese"],
-  address: "Via Roma 123, Milano",
-  reviewsList: [
-    {
-      id: 1,
-      author: "Mario Bianchi",
-      rating: 5,
-      date: "15 gennaio 2024",
-      verified: true,
-      title: "Professionista eccellente",
-      content: "Ho avuto un'esperienza molto positiva. L'avvocato Rossi è stato chiaro, competente e sempre disponibile.",
-      response: "Grazie per la sua recensione. È stato un piacere assisterla."
-    },
-    {
-      id: 2,
-      author: "Laura Verdi",
-      rating: 4,
-      date: "10 gennaio 2024",
-      verified: true,
-      title: "Molto professionale",
-      content: "Ottima assistenza per una questione contrattuale complessa. Consigliato."
-    }
-  ]
+type Review = {
+  id: number;
+  author: string;
+  rating: number;
+  date: string;
+  verified: boolean;
+  title: string;
+  content: string;
+  response?: string;
 };
 
-export default function ProfessionalProfile({ params }: { params: { id: string } }) {
+type Professional = {
+  id: number;
+  name: string;
+  profession: string;
+  specializations: string[];
+  rating: number;
+  reviews: number;
+  city: string;
+  verified: boolean;
+  image: string;
+  description: string;
+  experience: string;
+  education: string[];
+  languages: string[];
+  address: string;
+  reviewsList: Review[];
+};
+
+export default function ProfessionalProfile() {
+  const params = useParams();
+
+  // Dati di esempio
+  const professional: Professional = {
+    id: 1,
+    name: "Avv. Marco Rossi",
+    profession: "Avvocato",
+    specializations: ["Diritto Civile", "Diritto del Lavoro"],
+    rating: 4.8,
+    reviews: 156,
+    city: "Milano",
+    verified: true,
+    image: "/api/placeholder/200/200",
+    description: "Avvocato civilista con oltre 15 anni di esperienza. Specializzato in diritto del lavoro e controversie contrattuali.",
+    experience: "15 anni",
+    education: ["Laurea in Giurisprudenza - Università di Milano", "Master in Diritto del Lavoro"],
+    languages: ["Italiano", "Inglese"],
+    address: "Via Roma 123, Milano",
+    reviewsList: [
+      {
+        id: 1,
+        author: "Mario Bianchi",
+        rating: 5,
+        date: "15 gennaio 2024",
+        verified: true,
+        title: "Professionista eccellente",
+        content: "Ho avuto un'esperienza molto positiva. L'avvocato Rossi è stato chiaro, competente e sempre disponibile.",
+        response: "Grazie per la sua recensione. È stato un piacere assisterla."
+      },
+      {
+        id: 2,
+        author: "Laura Verdi",
+        rating: 4,
+        date: "10 gennaio 2024",
+        verified: true,
+        title: "Molto professionale",
+        content: "Ottima assistenza per una questione contrattuale complessa. Consigliato."
+      }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 max-w-5xl">
@@ -56,11 +90,12 @@ export default function ProfessionalProfile({ params }: { params: { id: string }
         {/* Header Profilo */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="flex gap-6">
-            <div className="w-48 h-48 rounded-lg overflow-hidden">
-              <img
+            <div className="w-48 h-48 relative rounded-lg overflow-hidden">
+              <Image
                 src={professional.image}
                 alt={professional.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
             
@@ -106,7 +141,6 @@ export default function ProfessionalProfile({ params }: { params: { id: string }
         <div className="grid grid-cols-3 gap-6">
           {/* Colonna Sinistra - Dettagli */}
           <div className="col-span-1 space-y-6">
-            {/* Info Box */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-lg font-semibold mb-4">Informazioni</h2>
               
