@@ -1,31 +1,66 @@
 import NextAuth from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
+import { compare } from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credenziali',
+      name: 'Credentials',
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Per ora ritorniamo un utente mock
-        if (credentials?.email === "test@test.com" && credentials?.password === "test") {
-          return {
-            id: "1",
-            name: "Test User",
-            email: "test@test.com"
-          }
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Credenziali richieste');
         }
-        return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (!user) {
+          throw new Error('Utente non trovato');
+        }
+
+        const isValid = await compare(credentials.password, user.password);
+
+        if (!isValid) {
+          throw new Error('Password non valida');
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        };
       }
-    }),
+    })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.role = token.role;
+      }
+      return session;
+    }
+  },
   pages: {
     signIn: '/login',
   },
-});
+  session: {
+    strategy: 'jwt'
+  }
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

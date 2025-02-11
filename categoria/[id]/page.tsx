@@ -5,6 +5,7 @@ import { Star, MapPin, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Dati di esempio per ogni categoria
 const mockProfessionals = {
   avvocati: [
     {
@@ -43,45 +44,9 @@ const mockProfessionals = {
       description: "Esperto in consulenza fiscale e societaria..."
     }
   ],
-  notai: [
-    {
-      id: 4,
-      name: "Notaio Mario Neri",
-      specializations: ["Atti Notarili", "Successioni"],
-      rating: 4.7,
-      reviews: 87,
-      city: "Milano",
-      verified: true,
-      image: "/api/placeholder/100/100",
-      description: "Specializzato in atti immobiliari e successioni..."
-    }
-  ],
-  ingegneri: [
-    {
-      id: 5,
-      name: "Ing. Paolo Gialli",
-      specializations: ["Edilizia", "Progettazione"],
-      rating: 4.5,
-      reviews: 92,
-      city: "Roma",
-      verified: true,
-      image: "/api/placeholder/100/100",
-      description: "Esperto in progettazione edile e ristrutturazioni..."
-    }
-  ],
-  artigiani: [
-    {
-      id: 6,
-      name: "Mario Fabbri",
-      specializations: ["Falegnameria", "Restauro"],
-      rating: 4.8,
-      reviews: 143,
-      city: "Firenze",
-      verified: true,
-      image: "/api/placeholder/100/100",
-      description: "Artigiano specializzato in mobili su misura e restauro..."
-    }
-  ]
+  notai: [...],
+  ingegneri: [...],
+  artigiani: [...]
 };
 
 const categoryTitles = {

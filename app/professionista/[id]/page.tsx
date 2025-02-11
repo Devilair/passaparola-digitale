@@ -1,44 +1,13 @@
 'use client';
 
-import { Star, Shield, MapPin, Calendar, ThumbsUp, MessageSquare } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Star, Shield, MapPin, MessageSquare } from 'lucide-react';
 
-type Review = {
-  id: number;
-  author: string;
-  rating: number;
-  date: string;
-  verified: boolean;
-  title: string;
-  content: string;
-  response?: string;
-};
-
-type Professional = {
-  id: number;
-  name: string;
-  profession: string;
-  specializations: string[];
-  rating: number;
-  reviews: number;
-  city: string;
-  verified: boolean;
-  image: string;
-  description: string;
-  experience: string;
-  education: string[];
-  languages: string[];
-  address: string;
-  reviewsList: Review[];
-};
-
-export default function ProfessionalProfile() {
-  const params = useParams();
-
-  // Dati di esempio
-  const professional: Professional = {
+// Dati mock dei professionisti
+const mockProfessionals = {
+  "1": {
     id: 1,
     name: "Avv. Marco Rossi",
     profession: "Avvocato",
@@ -46,22 +15,26 @@ export default function ProfessionalProfile() {
     rating: 4.8,
     reviews: 156,
     city: "Milano",
+    address: "Via Roma 123",
     verified: true,
-    image: "/api/placeholder/200/200",
+    image: "/api/placeholder/400/300",
     description: "Avvocato civilista con oltre 15 anni di esperienza. Specializzato in diritto del lavoro e controversie contrattuali.",
     experience: "15 anni",
-    education: ["Laurea in Giurisprudenza - Università di Milano", "Master in Diritto del Lavoro"],
-    languages: ["Italiano", "Inglese"],
-    address: "Via Roma 123, Milano",
-    reviewsList: [
+    education: [
+      "Laurea in Giurisprudenza - Università degli Studi di Milano",
+      "Master in Diritto del Lavoro",
+      "Abilitazione professionale dal 2008"
+    ],
+    languages: ["Italiano", "Inglese", "Francese"],
+    reviews_list: [
       {
         id: 1,
         author: "Mario Bianchi",
         rating: 5,
         date: "15 gennaio 2024",
-        verified: true,
         title: "Professionista eccellente",
         content: "Ho avuto un'esperienza molto positiva. L'avvocato Rossi è stato chiaro, competente e sempre disponibile.",
+        verified: true,
         response: "Grazie per la sua recensione. È stato un piacere assisterla."
       },
       {
@@ -69,28 +42,47 @@ export default function ProfessionalProfile() {
         author: "Laura Verdi",
         rating: 4,
         date: "10 gennaio 2024",
-        verified: true,
         title: "Molto professionale",
-        content: "Ottima assistenza per una questione contrattuale complessa. Consigliato."
+        content: "Ottima assistenza per una questione contrattuale complessa. Tempi e costi in linea con quanto preventivato.",
+        verified: true
       }
     ]
-  };
+  }
+};
+
+export default function ProfessionalPage() {
+  const params = useParams();
+  const professionalId = params.id as string;
+  const professional = mockProfessionals[professionalId as keyof typeof mockProfessionals];
+
+  if (!professional) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Professionista non trovato</h1>
+          <Link href="/" className="text-blue-600 hover:text-blue-800">
+            Torna alla home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-5xl">
-        {/* Pulsante Indietro */}
-        <Link 
-          href="/"
-          className="inline-block mb-6 text-blue-500 hover:text-blue-600"
-        >
-          ← Torna alla ricerca
-        </Link>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <Link href="/" className="text-blue-600 hover:text-blue-800">
+            ← Torna alla ricerca
+          </Link>
+        </div>
 
-        {/* Header Profilo */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <div className="flex gap-6">
-            <div className="w-48 h-48 relative rounded-lg overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+          <div className="md:flex">
+            {/* Profile Image */}
+            <div className="relative md:w-1/3 h-[300px] md:h-auto">
               <Image
                 src={professional.image}
                 alt={professional.name}
@@ -98,112 +90,120 @@ export default function ProfessionalProfile() {
                 className="object-cover"
               />
             </div>
-            
-            <div className="flex-grow">
-              <div className="flex justify-between items-start">
+
+            {/* Profile Info */}
+            <div className="p-6 md:w-2/3">
+              <div className="flex items-start justify-between">
                 <div>
                   <h1 className="text-3xl font-bold flex items-center gap-2">
                     {professional.name}
                     {professional.verified && (
-                      <Shield className="w-6 h-6 text-blue-500" />
+                      <Shield className="w-6 h-6 text-blue-500" title="Professionista verificato" />
                     )}
                   </h1>
                   <p className="text-xl text-gray-600 mt-1">{professional.profession}</p>
-                  
-                  <div className="flex items-center gap-4 mt-3">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400" />
-                      <span className="font-bold ml-1">{professional.rating}</span>
-                      <span className="text-gray-500 ml-1">
-                        ({professional.reviews} recensioni)
-                      </span>
-                    </div>
-                    <div className="flex items-center text-gray-500">
-                      <MapPin className="w-5 h-5 mr-1" />
-                      {professional.city}
-                    </div>
-                  </div>
                 </div>
-                
-                <button className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
-                  Contatta
-                </button>
+                <div className="flex items-center">
+                  <Star className="w-6 h-6 text-yellow-400" />
+                  <span className="ml-1 text-2xl font-bold">{professional.rating}</span>
+                  <span className="text-gray-500 ml-2">
+                    ({professional.reviews} recensioni verificate)
+                  </span>
+                </div>
               </div>
 
-              <div className="mt-4">
-                <p className="text-gray-700">{professional.description}</p>
+              <div className="flex items-center mt-4 text-gray-600">
+                <MapPin className="w-5 h-5 mr-1" />
+                <span>{professional.address}, {professional.city}</span>
               </div>
+
+              <p className="mt-4 text-gray-700">{professional.description}</p>
             </div>
           </div>
         </div>
 
-        {/* Dettagli e Recensioni */}
-        <div className="grid grid-cols-3 gap-6">
-          {/* Colonna Sinistra - Dettagli */}
-          <div className="col-span-1 space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold mb-4">Informazioni</h2>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left Column - Info */}
+          <div className="space-y-6">
+            {/* Experience & Education */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-bold mb-4">Informazioni Professionali</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-gray-500 text-sm">Esperienza</label>
-                  <p className="font-medium">{professional.experience}</p>
+                  <h3 className="text-sm font-medium text-gray-500">Esperienza</h3>
+                  <p className="mt-1">{professional.experience}</p>
                 </div>
 
                 <div>
-                  <label className="text-gray-500 text-sm">Formazione</label>
-                  <ul className="list-disc list-inside space-y-1">
+                  <h3 className="text-sm font-medium text-gray-500">Formazione</h3>
+                  <ul className="mt-1 list-disc list-inside space-y-1">
                     {professional.education.map((edu, index) => (
-                      <li key={index} className="font-medium">{edu}</li>
+                      <li key={index} className="text-gray-700">{edu}</li>
                     ))}
                   </ul>
                 </div>
 
                 <div>
-                  <label className="text-gray-500 text-sm">Lingue</label>
-                  <div className="flex gap-2">
+                  <h3 className="text-sm font-medium text-gray-500">Specializzazioni</h3>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {professional.specializations.map((spec, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Lingue</h3>
+                  <div className="mt-1 flex flex-wrap gap-2">
                     {professional.languages.map((lang, index) => (
                       <span
                         key={index}
-                        className="bg-gray-100 px-3 py-1 rounded-full text-sm"
+                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
                       >
                         {lang}
                       </span>
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <label className="text-gray-500 text-sm">Indirizzo</label>
-                  <p className="font-medium">{professional.address}</p>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Colonna Destra - Recensioni */}
-          <div className="col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold mb-6">Recensioni</h2>
-              
+          {/* Right Column - Reviews */}
+          <div className="md:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Recensioni Verificate</h2>
+                <Link 
+                  href="/recensioni/nuova" 
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  Scrivi una recensione
+                </Link>
+              </div>
+
               <div className="space-y-6">
-                {professional.reviewsList.map((review) => (
+                {professional.reviews_list.map((review) => (
                   <div key={review.id} className="border-b last:border-0 pb-6 last:pb-0">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center">
                           <h3 className="font-semibold">{review.author}</h3>
                           {review.verified && (
-                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                               <Shield className="w-3 h-3 mr-1" />
                               Verificata
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                          <Calendar className="w-4 h-4" />
-                          {review.date}
-                        </div>
+                        <p className="text-gray-500 text-sm">{review.date}</p>
                       </div>
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
@@ -216,12 +216,12 @@ export default function ProfessionalProfile() {
                         ))}
                       </div>
                     </div>
-
+                    
                     <h4 className="font-semibold mb-2">{review.title}</h4>
                     <p className="text-gray-700">{review.content}</p>
 
                     {review.response && (
-                      <div className="bg-gray-50 p-4 rounded-lg mt-4">
+                      <div className="mt-4 bg-gray-50 p-4 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <MessageSquare className="w-4 h-4 text-blue-500" />
                           <span className="font-semibold">Risposta del professionista</span>
@@ -236,6 +236,6 @@ export default function ProfessionalProfile() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

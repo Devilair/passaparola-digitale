@@ -1,7 +1,9 @@
 'use client';
+
 import { useState } from 'react';
 import { Search, MapPin, Star, Shield, TrendingUp, Award, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,107 +11,75 @@ export default function Home() {
 
   const cities = ['Milano', 'Roma', 'Torino', 'Firenze', 'Napoli', 'Bologna'];
 
-  const featuredCategories = [
+  const categories = [
     {
-      id: 'trending',
-      title: "Professionisti del Momento",
-      icon: TrendingUp,
-      description: "I più richiesti questa settimana",
-      image: "/api/placeholder/400/300",
-      color: "from-blue-500 to-blue-600"
-    },
-    {
-      id: 'verified',
-      title: "Top Verificati",
-      icon: Shield,
-      description: "Professionisti con verifica approfondita",
-      image: "/api/placeholder/400/300",
-      color: "from-green-500 to-green-600"
-    },
-    {
-      id: 'new',
-      title: "Nuovi Arrivati",
-      icon: Clock,
-      description: "Gli ultimi professionisti iscritti",
-      image: "/api/placeholder/400/300",
-      color: "from-purple-500 to-purple-600"
-    },
-    {
-      id: 'popular',
-      title: "I Più Popolari",
-      icon: Users,
-      description: "Con il maggior numero di recensioni",
-      image: "/api/placeholder/400/300",
-      color: "from-orange-500 to-orange-600"
-    }
-  ];
-
-  const professionalCategories = [
-    {
-      name: "Avvocati",
+      id: 'avvocati',
+      name: 'Avvocati',
+      icon: '⚖️',
       count: 1250,
-      icon: "⚖️",
-      popular: ["Civile", "Penale", "Lavoro", "Famiglia"]
+      description: 'Consulenza legale e rappresentanza in tribunale'
     },
     {
-      name: "Commercialisti",
+      id: 'commercialisti',
+      name: 'Commercialisti',
+      icon: '📊',
       count: 850,
-      icon: "📊",
-      popular: ["Fiscale", "Societario", "Consulenza", "Bilanci"]
+      description: 'Consulenza fiscale e tributaria'
     },
     {
-      name: "Notai",
+      id: 'notai',
+      name: 'Notai',
+      icon: '📜',
       count: 320,
-      icon: "📜",
-      popular: ["Atti", "Successioni", "Mutui", "Società"]
+      description: 'Atti e certificazioni ufficiali'
     },
     {
-      name: "Ingegneri",
+      id: 'ingegneri',
+      name: 'Ingegneri',
+      icon: '🏗️',
       count: 980,
-      icon: "🏗️",
-      popular: ["Civile", "Informatico", "Energetico", "Ambientale"]
+      description: 'Progettazione e consulenza tecnica'
     }
   ];
 
-  const topRated = [
+  const featuredProfessionals = [
     {
       id: 1,
-      name: "Studio Legale Rossi",
+      name: "Avv. Marco Rossi",
       profession: "Avvocato",
       specialization: "Diritto Civile",
       rating: 4.9,
       reviews: 189,
-      image: "/api/placeholder/400/300",
       city: "Milano",
-      verified: true
+      verified: true,
+      image: "/api/placeholder/400/300"
     },
     {
       id: 2,
-      name: "Dott. Bianchi",
+      name: "Dott. Giuseppe Verdi",
       profession: "Commercialista",
       specialization: "Consulenza Fiscale",
       rating: 4.8,
       reviews: 156,
-      image: "/api/placeholder/400/300",
       city: "Roma",
-      verified: true
+      verified: true,
+      image: "/api/placeholder/400/300"
     },
     {
       id: 3,
-      name: "Studio Notarile Verdi",
+      name: "Not. Anna Bianchi",
       profession: "Notaio",
       specialization: "Atti e Successioni",
       rating: 4.9,
       reviews: 134,
-      image: "/api/placeholder/400/300",
       city: "Torino",
-      verified: true
+      verified: true,
+      image: "/api/placeholder/400/300"
     }
   ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementare la ricerca
     window.location.href = `/cerca?q=${searchQuery}&city=${selectedCity}`;
   };
 
@@ -163,92 +133,62 @@ export default function Home() {
 
           {/* Quick Categories */}
           <div className="flex flex-wrap justify-center gap-4 mt-8">
-            {professionalCategories.map((cat) => (
+            {categories.map((category) => (
               <Link
-                key={cat.name}
-                href={`/categoria/${cat.name.toLowerCase()}`}
+                key={category.id}
+                href={`/categoria/${category.id}`}
                 className="text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
               >
-                <span>{cat.icon}</span>
-                <span>{cat.name}</span>
+                <span>{category.icon}</span>
+                <span>{category.name}</span>
               </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Featured Categories */}
-      <section className="py-16">
+      {/* Categories Section */}
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12 text-center">
-            Scopri i professionisti in evidenza
+            Esplora per categoria
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredCategories.map((category) => (
+            {categories.map((category) => (
               <Link
                 key={category.id}
                 href={`/categoria/${category.id}`}
-                className="group relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                className="group bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-90 group-hover:opacity-95 transition-opacity`} />
-                <div className="relative p-6 text-white">
-                  <category.icon className="w-12 h-12 mb-4" />
-                  <h3 className="text-xl font-bold mb-2">{category.title}</h3>
-                  <p className="opacity-90 text-sm">{category.description}</p>
-                </div>
+                <div className="text-4xl mb-4">{category.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
+                <p className="text-gray-500 mb-4">{category.count}+ professionisti</p>
+                <p className="text-gray-600 text-sm">{category.description}</p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Professional Categories */}
+      {/* Featured Professionals */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12 text-center">
-            Esplora per categoria
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {professionalCategories.map((category) => (
-              <div key={category.name} className="bg-white rounded-xl p-6 shadow-lg">
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                <p className="text-gray-500 mb-4">{category.count}+ professionisti</p>
-                <div className="space-y-2">
-                  {category.popular.map((spec) => (
-                    <Link
-                      key={spec}
-                      href={`/categoria/${category.name.toLowerCase()}/${spec.toLowerCase()}`}
-                      className="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
-                    >
-                      {spec}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Top Rated Professionals */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center">
-            I più votati questa settimana
+            Professionisti in evidenza
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topRated.map((professional) => (
+            {featuredProfessionals.map((professional) => (
               <Link
                 key={professional.id}
                 href={`/professionista/${professional.id}`}
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
               >
                 <div className="relative h-48">
-                  <img
+                  <Image
                     src={professional.image}
                     alt={professional.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   {professional.verified && (
                     <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
