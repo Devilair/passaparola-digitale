@@ -1,45 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, MapPin, Star, Shield, TrendingUp, Award, Clock, Users } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Search, MapPin, Star, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const scrollContainer = useRef<HTMLDivElement>(null);
 
   const cities = ['Milano', 'Roma', 'Torino', 'Firenze', 'Napoli', 'Bologna'];
 
   const categories = [
-    {
-      id: 'avvocati',
-      name: 'Avvocati',
-      icon: '⚖️',
-      count: 1250,
-      description: 'Consulenza legale e rappresentanza in tribunale'
-    },
-    {
-      id: 'commercialisti',
-      name: 'Commercialisti',
-      icon: '📊',
-      count: 850,
-      description: 'Consulenza fiscale e tributaria'
-    },
-    {
-      id: 'notai',
-      name: 'Notai',
-      icon: '📜',
-      count: 320,
-      description: 'Atti e certificazioni ufficiali'
-    },
-    {
-      id: 'ingegneri',
-      name: 'Ingegneri',
-      icon: '🏗️',
-      count: 980,
-      description: 'Progettazione e consulenza tecnica'
-    }
+    { id: 'avvocati', name: 'Avvocati', icon: '⚖️' },
+    { id: 'commercialisti', name: 'Commercialisti', icon: '📊' },
+    { id: 'notai', name: 'Notai', icon: '📜' },
+    { id: 'ingegneri', name: 'Ingegneri', icon: '🏗️' },
+    { id: 'architetti', name: 'Architetti', icon: '🏛️' },
+    { id: 'medici', name: 'Medici', icon: '👨‍⚕️' },
+    { id: 'consulenti', name: 'Consulenti', icon: '💼' },
+    { id: 'artigiani', name: 'Artigiani', icon: '🔧' },
+    { id: 'dentisti', name: 'Dentisti', icon: '🦷' },
+    { id: 'psicologi', name: 'Psicologi', icon: '🧠' }
   ];
 
   const featuredProfessionals = [
@@ -83,6 +66,16 @@ export default function Home() {
     window.location.href = `/cerca?q=${searchQuery}&city=${selectedCity}`;
   };
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainer.current) {
+      const scrollAmount = 200;
+      scrollContainer.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -92,12 +85,11 @@ export default function Home() {
             Trova il <span className="text-blue-600">professionista</span> giusto
           </h1>
           <p className="text-xl text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-            Scopri migliaia di professionisti verificati, leggi le recensioni e trova
-            l'esperto più adatto alle tue esigenze
+            Leggi recensioni verificate e trova l'esperto più adatto alle tue esigenze
           </p>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto mb-12">
             <div className="flex flex-col md:flex-row gap-4 bg-white rounded-lg shadow-xl p-2">
               <div className="flex-grow relative">
                 <Search className="absolute left-4 top-3.5 text-gray-400" />
@@ -131,47 +123,93 @@ export default function Home() {
             </div>
           </form>
 
-          {/* Quick Categories */}
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categoria/${category.id}`}
-                className="text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
-              >
-                <span>{category.icon}</span>
-                <span>{category.name}</span>
-              </Link>
-            ))}
+          {/* Category Scroll */}
+          <div className="relative max-w-7xl mx-auto">
+            <button 
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-2 hover:bg-gray-50"
+              aria-label="Scorri a sinistra"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+
+            <div 
+              ref={scrollContainer}
+              className="overflow-x-auto scrollbar-hide flex gap-4 px-8"
+            >
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/categoria/${category.id}`}
+                  className="flex flex-col items-center gap-2 min-w-[100px] p-4 rounded-xl hover:bg-white hover:shadow-md transition-all"
+                >
+                  <span className="text-3xl">{category.icon}</span>
+                  <span className="text-sm font-medium text-gray-700 whitespace-nowrap">{category.name}</span>
+                </Link>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg p-2 hover:bg-gray-50"
+              aria-label="Scorri a destra"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Categories Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center">
-            Esplora per categoria
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categoria/${category.id}`}
-                className="group bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                <p className="text-gray-500 mb-4">{category.count}+ professionisti</p>
-                <p className="text-gray-600 text-sm">{category.description}</p>
-              </Link>
-            ))}
+      {/* Community Stats Section */}
+      <section className="bg-blue-50 py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">
+                Aiuta altri a trovare il professionista giusto
+              </h2>
+              <p className="text-lg text-gray-600 mb-8">
+                Condividi la tua esperienza su Passaparola Digitale, dove le recensioni verificate fanno la differenza.
+              </p>
+              <div className="flex gap-4">
+                <Link
+                  href="/registrati"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Scrivi una recensione
+                </Link>
+                <Link
+                  href="/come-funziona"
+                  className="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  Scopri di più
+                </Link>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <div className="text-3xl font-bold text-blue-600 mb-2">150k+</div>
+                <div className="text-gray-600">Recensioni verificate</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <div className="text-3xl font-bold text-blue-600 mb-2">50k+</div>
+                <div className="text-gray-600">Professionisti</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <div className="text-3xl font-bold text-blue-600 mb-2">98%</div>
+                <div className="text-gray-600">Recensioni autentiche</div>
+              </div>
+              <div className="bg-white p-6 rounded-xl shadow-sm">
+                <div className="text-3xl font-bold text-blue-600 mb-2">4.8/5</div>
+                <div className="text-gray-600">Rating medio</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Featured Professionals */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12 text-center">
             Professionisti in evidenza
@@ -230,7 +268,7 @@ export default function Home() {
             Sei un professionista?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Unisciti a migliaia di professionisti e raggiungi nuovi clienti
+            Unisciti a migliaia di professionisti e gestisci la tua reputazione online
           </p>
           <Link
             href="/register"
