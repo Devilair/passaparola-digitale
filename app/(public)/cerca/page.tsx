@@ -1,94 +1,71 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Star, Shield, MapPin, Filter } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Dati mock per la ricerca
-const mockProfessionals = [
-  {
-    id: 1,
-    name: "Avv. Marco Rossi",
-    profession: "Avvocato",
-    specializations: ["Diritto Civile", "Diritto del Lavoro"],
-    rating: 4.8,
-    reviews: 156,
-    city: "Milano",
-    verified: true,
-    image: "/api/placeholder/100/100",
-    description: "Specializzato in diritto del lavoro e controversie civili."
-  },
-  {
-    id: 2,
-    name: "Dott. Giuseppe Verdi",
-    profession: "Commercialista",
-    specializations: ["Consulenza Fiscale", "Bilanci"],
-    rating: 4.7,
-    reviews: 123,
-    city: "Torino",
-    verified: true,
-    image: "/api/placeholder/100/100",
-    description: "Specializzato in consulenza fiscale e bilanci."
-  },
-  // Aggiungi altri professionisti qui...
-];
+interface Professional {
+  id: number;
+  name: string;
+  profession: string;
+  specializations: string[];
+  rating: number;
+  reviews: number;
+  city: string;
+  verified: boolean;
+  image: string;
+  description: string;
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+}
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q');
   const cityQuery = searchParams.get('city');
 
+  const [results, setResults] = useState<Professional[]>([]);
   const [filters, setFilters] = useState({
     rating: 0,
     verified: false,
-    specialization: '',
-    city: cityQuery || ''
+    city: cityQuery || '',
+    category: ''
   });
 
-  const [results, setResults] = useState(mockProfessionals);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simula una ricerca con i filtri
-    const filtered = mockProfessionals.filter(prof => {
-      // Filtra per query di ricerca
-      if (searchQuery && !prof.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !prof.profession.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !prof.specializations.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))) {
-        return false;
+    const fetchResults = async () => {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        ...(searchQuery && { q: searchQuery }),
+        ...(filters.city && { city: filters.city }),
+        ...(filters.category && { category: filters.category }),
+        ...(filters.rating > 0 && { minRating: filters.rating.toString() }),
+        ...(filters.verified && { verified: 'true' })
+      });
+
+      try {
+        const response = await fetch(`/api/search?${queryParams}`);
+        const data = await response.json();
+        setResults(data);
+      } catch (error) {
+        console.error('Error fetching results:', error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Filtra per città
-      if (filters.city && prof.city !== filters.city) {
-        return false;
-      }
-
-      // Filtra per rating
-      if (filters.rating > 0 && prof.rating < filters.rating) {
-        return false;
-      }
-
-      // Filtra per verifica
-      if (filters.verified && !prof.verified) {
-        return false;
-      }
-
-      return true;
-    });
-
-    setResults(filtered);
+    fetchResults();
   }, [searchQuery, filters]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            ← Torna alla home
-          </Link>
-        </div>
-
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">
             {searchQuery ? 
@@ -141,7 +118,23 @@ export default function SearchPage() {
                   <option value="Milano">Milano</option>
                   <option value="Roma">Roma</option>
                   <option value="Torino">Torino</option>
-                  <option value="Bologna">Bologna</option>
+                </select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Categoria
+                </label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => setFilters({...filters, category: e.target.value})}
+                  className="w-full border-gray-300 rounded-md shadow-sm"
+                >
+                  <option value="">Tutte</option>
+                  <option value="Avvocato">Avvocati</option>
+                  <option value="Commercialista">Commercialisti</option>
+                  <option value="Notaio">Notai</option>
                 </select>
               </div>
 
@@ -162,9 +155,14 @@ export default function SearchPage() {
 
           {/* Risultati */}
           <div className="flex-grow">
-            <div className="space-y-4">
-              {results.length > 0 ? (
-                results.map((professional) => (
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Caricamento risultati...</p>
+              </div>
+            ) : results.length > 0 ? (
+              <div className="space-y-4">
+                {results.map((professional) => (
                   <Link
                     key={professional.id}
                     href={`/professionista/${professional.id}`}
@@ -201,7 +199,7 @@ export default function SearchPage() {
                           </div>
                           <div className="flex items-center mt-2 text-gray-500">
                             <MapPin className="w-4 h-4 mr-1" />
-                            <span>{professional.city}</span>
+                            <span>{professional.address}, {professional.city}</span>
                           </div>
                           <p className="mt-2 text-gray-600">{professional.description}</p>
                           <div className="mt-3 flex flex-wrap gap-2">
@@ -218,18 +216,14 @@ export default function SearchPage() {
                       </div>
                     </div>
                   </Link>
-                ))
-              ) : (
-                <div className="bg-white rounded-lg shadow p-6 text-center">
-                  <p className="text-gray-500">
-                    Nessun professionista trovato per questa ricerca.
-                  </p>
-                  <p className="text-gray-500 mt-2">
-                    Prova a modificare i filtri o a cercare qualcos'altro.
-                  </p>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500">Nessun risultato trovato</p>
+                <p className="text-gray-500 mt-2">Prova a modificare i filtri di ricerca</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
